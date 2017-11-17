@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rc4"
 	"crypto/sha1"
 	"fmt"
 )
@@ -11,6 +12,7 @@ import (
 const _CryptoErrorDataNotPadded = "The data to be encrypted is not padded."
 const _CryptoErrorCreatingKey = "There was an error creating the key. [%s]"
 const _CryptoErrorInvalidIvLength = "There was an error with the IV length. It should be 16 bytes"
+const _CryptoErrorDecryptingWithRC4 = "There was an error decrypting. [%s]"
 
 type Crypto struct {
 	errorMessage string
@@ -33,8 +35,8 @@ func CreateSha1Hash(data []byte) []byte {
 	return dataAfterShaing
 }
 
-// EncryptWithAesCBC is a crypto helper which encrypts the argument using AES CBC cipher.
-func EncryptWithAesCBC(key []byte, iv []byte, data []byte) ([]byte, error) {
+// EncryptWithAesCbc is a crypto helper which encrypts the argument using AES CBC cipher.
+func EncryptWithAesCbc(key []byte, iv []byte, data []byte) ([]byte, error) {
 
 	// Ensure the data is padded
 	if len(data)%aes.BlockSize != 0 {
@@ -59,6 +61,18 @@ func EncryptWithAesCBC(key []byte, iv []byte, data []byte) ([]byte, error) {
 	mode.CryptBlocks(cipherText, data)
 
 	return cipherText, nil
+}
+
+// DecryptWithRC4_64 is a crypto helper which decrypts the argument RC4-64 bit cipher.
+func DecryptWithRC4_64(key []byte, data []byte) ([]byte, error) {
+	// to decode, you will need to initialize a new cipher with the same key.
+	cipher, err := rc4.NewCipher(key)
+	if err != nil {
+		return []byte{}, &Crypto{errorMessage: fmt.Sprintf(_CryptoErrorDecryptingWithRC4, err.Error())}
+	}
+
+	cipher.XORKeyStream(data, data)
+	return data, err
 }
 
 func (c *Crypto) Error() string {
