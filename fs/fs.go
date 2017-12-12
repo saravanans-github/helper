@@ -5,7 +5,8 @@ import (
 	"os"
 )
 
-func makeDirectory(newDir string, perm os.FileMode, forceCreate bool) error {
+// MakeDirectory create a new directory specified at newDir with file permisions perm. if forceCreate = true then the directory (and its contents) are overwritten.
+func MakeDirectory(newDir string, perm os.FileMode, forceCreate bool) error {
 	// if force create then remove the directory and it's contents if it exists
 	if forceCreate {
 		log.Printf("Force create = true. Removing directory [%s]...", newDir)
@@ -27,7 +28,9 @@ func makeDirectory(newDir string, perm os.FileMode, forceCreate bool) error {
 	return nil
 }
 
-func writeToFile(dst string, data chan []byte, err *error, writeComplete *bool) {
+// WriteToFile is an async go routine which writes to the file specifed by dst. Bytes are written as they are written to the channel data.
+// The method will set writeComplete to true once the operation is complete. this can be used to block the routine. any errors will be written in err.
+func WriteToFile(dst string, data chan []byte, err *error, writeComplete *bool) {
 	log.Printf("Creating file [%s]... ", dst)
 	var file *os.File
 	file, *err = os.Create(dst)

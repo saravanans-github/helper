@@ -11,7 +11,7 @@ func TestWriteToFile(t *testing.T) {
 
 	var err error
 	var isDone = false
-	writeToFile("test.txt", dataChannel, &err, &isDone)
+	WriteToFile("test.txt", dataChannel, &err, &isDone)
 	for _, data := range dataToWrite {
 		dataChannel <- []byte(data)
 	}
